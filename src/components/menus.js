@@ -26,6 +26,12 @@ const menus = [
     icon: 'fa fa-circle-o',
     label: '教程管理',
     name: 'course-manager'
+  },
+  {
+    id: 'carousel',
+    icon: 'fa fa-circle-o',
+    label: '轮播管理',
+    name: 'carousel-manager'
   }
 
 ]

@@ -23,7 +23,8 @@ export default new Router({
         {path: '/exhibition-manager', name: 'exhibition-manager', component: page('exhibition-manager')},
         {path: '/exhibition-work-manager', name: 'exhibition-work-manager', component: page('exhibition-work-manager')},
         {path: '/course-manager', name: 'course-manager', component: page('course-manager')},
-        {path: '/update-pwd', name: 'update-pwd', component: page('update-pwd')}
+        {path: '/update-pwd', name: 'update-pwd', component: page('update-pwd')},
+        {path: '/carousel-manager', name: 'carousel-manager', component: page('carousel-manager')}
       ]
     },
     {path: '/login', name: 'login', component: page('login')},

@@ -1,5 +1,5 @@
 <template>
-<div class="page-body"  
+<div class="page-body"
     v-loading="loading"
     element-loading-text="拼命加载中"
     element-loading-spinner="el-icon-loading"
@@ -32,6 +32,7 @@
       <el-table-column label="作品编号" prop="id" width="80"></el-table-column>
       <el-table-column label="用户编号" prop="userId"></el-table-column>
       <el-table-column label="内容" prop="content"></el-table-column>
+      <el-table-column label="分类" prop="typeName"></el-table-column>
       <el-table-column label="类型" prop="type">
         <template slot-scope="scope">
           {{scope.row.type==0?"图片":"视频"}}
@@ -67,6 +68,16 @@
         <el-form-item label="内容">
           <el-input type="textarea" v-model="workInfo.content"></el-input>
         </el-form-item>
+        <el-form-item label="分类">
+          <el-select v-model="workInfo.typeId" placeholder="请选择">
+            <el-option
+              v-for="item in type"
+              :key="type.id"
+              :label="item.typeName"
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="图片">
           <img class="img-thumb" v-if="workInfo.type===0" :src="imgUrl + workInfo.source"/>
           <img class="img-thumb" v-if="workInfo.type===1" :src="imgUrl + workInfo.thumb"/>
@@ -79,7 +90,7 @@
     </el-dialog>
     </div>
   </div>
-  
+
 </div>
 </template>
 <script>
@@ -100,7 +111,8 @@ export default {
       searchArea: {
         workId: null,
         userId: null
-      }
+      },
+      type: null
     }
   },
   methods: {
@@ -202,11 +214,21 @@ export default {
           message: '已取消删除'
         })
       })
+    },
+    getType () {
+      Vue.http.get(process.env.baseUrl + '/getType').then(res => {
+        if (res.code === 0) {
+          this.type = res.data
+        } else {
+          this.$message.warning('获得类型失败')
+        }
+      })
     }
   },
   created () {
     this.getWorkList(this.current, this.size)
     this.imgUrl = process.env.imgUrl
+    this.getType()
   }
 }
 </script>

@@ -1,5 +1,5 @@
 <template>
-<div class="page-body"  
+<div class="page-body"
     v-loading="loading"
     element-loading-text="拼命加载中"
     element-loading-spinner="el-icon-loading"
@@ -18,7 +18,7 @@
         <el-input v-model="searchArea.id" placeholder="教程编号"></el-input>
       </el-form-item>
       <el-form-item label="分类">
-        <el-input v-model="searchArea.type" placeholder="分类"></el-input>
+        <el-input v-model="searchArea.typeName" placeholder="分类"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="handleSearch()">查询</el-button>
@@ -34,7 +34,7 @@
     <el-table :data="courseList">
       <el-table-column label="教程编号" prop="id" width="80"></el-table-column>
       <el-table-column label="教程标题" prop="title"></el-table-column>
-      <el-table-column label="分类" prop="type"></el-table-column>
+      <el-table-column label="分类" prop="typeName"></el-table-column>
       <el-table-column label="图片" prop="thumb">
         <template slot-scope="scope">
           <img :src="imgUrl + scope.row.thumb" class="img-small" />
@@ -69,7 +69,15 @@
           <el-input v-model="courseInfo.title"></el-input>
         </el-form-item>
         <el-form-item label="分类" required>
-          <el-input v-model="courseInfo.type"></el-input>
+          <!--<el-input v-model="courseInfo.typeName"></el-input>-->
+          <el-select v-model="courseInfo.typeId" placeholder="请选择">
+            <el-option
+              v-for="item in type"
+              :key="type.id"
+              :label="item.typeName"
+              :value="item.id">
+            </el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="地址" required>
           <el-input v-model="courseInfo.url"></el-input>
@@ -101,7 +109,14 @@
           <el-input v-model="createData.title"></el-input>
         </el-form-item>
         <el-form-item label="分类" required>
-          <el-input v-model="createData.type"></el-input>
+          <el-select v-model="createData.type" placeholder="请选择">
+            <el-option
+              v-for="item in type"
+              :key="type.id"
+              :label="item.typeName"
+              :value="item.id">
+            </el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="地址" required>
           <el-input v-model="createData.url"></el-input>
@@ -126,7 +141,7 @@
     </el-dialog>
     </div>
   </div>
-  
+
 </div>
 </template>
 <script>
@@ -151,7 +166,8 @@ export default {
       createVisible: false,
       createData: {},
       thumbUrl: '',
-      thumbUploadUrl: ''
+      thumbUploadUrl: '',
+      type: null
     }
   },
   methods: {
@@ -163,8 +179,8 @@ export default {
           size
         }
       }).then(res => {
-        console.log(res)
         this.loadingTable = false
+        console.log(res)
         if (res.code === 0) {
           this.courseList = res.courseList
           this.dataCount = res.count
@@ -176,7 +192,7 @@ export default {
     },
     handleCurrentChange (val) {
       this.current = val
-      if (this.searchArea.id || this.searchArea.type) {
+      if (this.searchArea.id || this.searchArea.typeName) {
         this.searchCourse(this.current, this.size)
       } else {
         this.getCourseList(this.current, this.size)
@@ -191,7 +207,7 @@ export default {
       Vue.http.post(process.env.baseUrl + '/updateCourse', {
         id: this.courseInfo.id,
         title: this.courseInfo.title,
-        type: this.courseInfo.type,
+        typeId: this.courseInfo.typeId,
         thumb: this.courseInfo.thumb,
         url: this.courseInfo.url
       }).then(res => {
@@ -208,7 +224,7 @@ export default {
     },
     handleSearch () {
       this.current = 1
-      if (this.searchArea.id || this.searchArea.type) {
+      if (this.searchArea.id || this.searchArea.typeName) {
         this.searchCourse(this.current, this.size)
       } else {
         this.getCourseList(this.current, this.size)
@@ -219,7 +235,7 @@ export default {
       Vue.http.get(process.env.baseUrl + '/searchCourse', {
         params: {
           id: this.searchArea.id ? this.searchArea.id : -1,
-          type: this.searchArea.type ? this.searchArea.type : -1,
+          typeName: this.searchArea.typeName ? this.searchArea.typeName : -1,
           size: size,
           current: current
         }
@@ -286,7 +302,7 @@ export default {
         title: this.createData.title,
         type: this.createData.type,
         thumb: this.thumbUrl,
-        url: this.url
+        url: this.createData.url
       }).then(res => {
         if (res.code === 0) {
           this.createVisible = false
@@ -297,12 +313,22 @@ export default {
           this.$message.errot('创建教程失败')
         }
       })
+    },
+    getType () {
+      Vue.http.get(process.env.baseUrl + '/getType').then(res => {
+        if (res.code === 0) {
+          this.type = res.data
+        } else {
+          this.$message.warning('获得类型失败')
+        }
+      })
     }
   },
   created () {
     this.getCourseList(this.current, this.size)
     this.imgUrl = process.env.imgUrl
     this.thumbUploadUrl = process.env.baseUrl
+    this.getType()
   }
 }
 </script>
